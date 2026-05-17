@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test 1 – Kimyoviy kinetika va tibbiy elementlar</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1923; color: #e8eaf0; min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, #1a2a3a 0%, #0d3b6e 100%);
+    padding: 28px 32px 20px;
+    border-bottom: 2px solid #1e5f9e;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; color: #60b3ff; letter-spacing: 0.5px; }
+  .header p { font-size: 13px; color: #8aa8c8; margin-top: 4px; }
+
+  .stats-bar {
+    display: flex; gap: 16px; padding: 16px 32px;
+    background: #131f2e; border-bottom: 1px solid #1e3a5a;
+    flex-wrap: wrap;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 22px; font-weight: 700; color: #60b3ff; }
+  .stat-label { font-size: 11px; color: #6a8aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .progress-bar-wrap { padding: 12px 32px; background: #131f2e; border-bottom: 1px solid #1e3a5a; }
+  .progress-bar { height: 6px; background: #1e3a5a; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #1e6fbe, #60b3ff); border-radius: 3px; transition: width 0.4s; }
+  .progress-text { font-size: 12px; color: #6a8aaa; margin-top: 6px; }
+
+  .controls { display: flex; gap: 10px; padding: 14px 32px; background: #0f1923; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 18px; border-radius: 6px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: all 0.2s;
+  }
+  .btn-primary { background: #1e6fbe; color: #fff; }
+  .btn-primary:hover { background: #2580d8; }
+  .btn-secondary { background: #1e3a5a; color: #a0c0e0; }
+  .btn-secondary:hover { background: #25486e; }
+  .btn-success { background: #1a5c3a; color: #5de8a0; }
+  .btn-success:hover { background: #1f7048; }
+
+  .question-area { padding: 20px 32px; max-width: 860px; }
+
+  .question-card {
+    background: #131f2e; border: 1px solid #1e3a5a;
+    border-radius: 12px; padding: 24px; margin-bottom: 18px;
+  }
+  .q-number {
+    font-size: 11px; font-weight: 700; color: #3a7fbe;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+  }
+  .q-text { font-size: 16px; color: #dce8f8; line-height: 1.55; margin-bottom: 18px; }
+
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 16px; border-radius: 8px;
+    border: 1px solid #1e3a5a; background: #0f1923;
+    cursor: pointer; transition: all 0.18s;
+  }
+  .option:hover { border-color: #3a7fbe; background: #16283e; }
+  .option.selected { border-color: #2580d8; background: #12304e; }
+  .option.correct { border-color: #2db87a; background: #0d2e1c; }
+  .option.wrong { border-color: #d84040; background: #2a0f0f; }
+  .option-letter {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: #1e3a5a; color: #60b3ff; font-weight: 700;
+    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .option.correct .option-letter { background: #0d5c34; color: #5de8a0; }
+  .option.wrong .option-letter { background: #5c1a1a; color: #ff7070; }
+  .option-text { font-size: 14px; color: #c0d8f0; }
+
+  .feedback {
+    margin-top: 14px; padding: 12px 16px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; display: none;
+  }
+  .feedback.correct { background: #0d2e1c; border: 1px solid #2db87a; color: #5de8a0; }
+  .feedback.wrong { background: #2a0f0f; border: 1px solid #d84040; color: #ff8a8a; }
+
+  .nav-buttons { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+
+  .result-screen {
+    display: none; padding: 40px 32px; max-width: 600px;
+  }
+  .result-card {
+    background: #131f2e; border: 2px solid #1e6fbe;
+    border-radius: 16px; padding: 36px; text-align: center;
+  }
+  .result-score { font-size: 56px; font-weight: 800; color: #60b3ff; }
+  .result-label { font-size: 16px; color: #8aa8c8; margin-top: 4px; }
+  .result-details { margin-top: 24px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+  .result-item { text-align: center; }
+  .result-item-num { font-size: 28px; font-weight: 700; }
+  .result-item-label { font-size: 12px; color: #6a8aaa; }
+  .green { color: #5de8a0; }
+  .red { color: #ff7070; }
+
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 14px;
+    background: #0d3b6e; color: #60b3ff;
+  }
+  .shuffle-note { font-size: 12px; color: #5a7a9a; padding: 0 32px 8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🧪 Test 1 — Kimyoviy kinetika & Tibbiy elementlar</h1>
+  <p>Savollar 1–50 • Tibbiy kimyo imtihoniga tayyorgarlik</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num" id="s-total">50</div><div class="stat-label">Jami savol</div></div>
+  <div class="stat"><div class="stat-num" id="s-current">0</div><div class="stat-label">Bajarildi</div></div>
+  <div class="stat"><div class="stat-num green" id="s-correct">0</div><div class="stat-label">To'g'ri</div></div>
+  <div class="stat"><div class="stat-num red" id="s-wrong">0</div><div class="stat-label">Xato</div></div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+  <div class="progress-text" id="prog-text">0 / 50 savol bajarildi</div>
+</div>
+
+<div class="controls">
+  <button class="btn btn-primary" onclick="startQuiz()">▶ Testni boshlash</button>
+  <button class="btn btn-secondary" onclick="shuffleAndStart()">🔀 Aralashtirish</button>
+  <button class="btn btn-success" onclick="restartQuiz()">↺ Qayta boshlash</button>
+</div>
+<div class="shuffle-note" id="snote"></div>
+
+<div class="question-area" id="qarea" style="display:none">
+  <div class="question-card">
+    <div class="q-number" id="qnum">Savol 1 / 50</div>
+    <div class="q-text" id="qtext"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" id="prevBtn" onclick="prevQ()" style="display:none">← Oldingi</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextQ()" style="display:none">Keyingi →</button>
+    <button class="btn btn-success" id="finishBtn" onclick="showResults()" style="display:none">✔ Natijani ko'rish</button>
+  </div>
+</div>
+
+<div class="result-screen" id="rscreen">
+  <div class="result-card">
+    <div class="badge">Natija</div>
+    <div class="result-score" id="rscore">0%</div>
+    <div class="result-label" id="rlabel">Natijangiz</div>
+    <div class="result-details">
+      <div class="result-item"><div class="result-item-num green" id="rcorrect">0</div><div class="result-item-label">To'g'ri</div></div>
+      <div class="result-item"><div class="result-item-num red" id="rwrong">0</div><div class="result-item-label">Xato</div></div>
+      <div class="result-item"><div class="result-item-num" id="rskipped" style="color:#8aa8c8">0</div><div class="result-item-label">Qoldirilgan</div></div>
+    </div>
+    <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="restartQuiz()">↺ Qayta boshlash</button>
+      <button class="btn btn-secondary" onclick="shuffleAndStart()">🔀 Aralashtirish</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const allQuestions = [
+  {q:"Tibbiyotda dezinfeksiyalovchi H₂O₂ eritmasi konsentratsiyasi:", a:["3%","10%","5%","1%"], c:0},
+  {q:"Organizmda H₂O₂ parchalovchi ferment:", a:["Katalaza","Lipaza","Amilaza","Proteza"], c:0},
+  {q:"Kimyoning kimyoviy reaksiya tezligini va muvozanatini o'rganuvchi bo'limi:", a:["Kimyoviy kinetika","Termodinamika","Elektrokimyo","Analitik kimyo"], c:0},
+  {q:"Reaksiya tezligini pasaytiruvchi moddalar:", a:["Ingibitor","Promotor","Katalizator","Akselerant"], c:0},
+  {q:"Reaksiya tezligini oshiruvchi moddalar:", a:["Promotor","Ingibitor","Inhibitor","Neytral moddalar"], c:0},
+  {q:"Reaksiya tezligiga temperatura ta'siri:", a:["Oshiradi","Kamaytiradi","Ta'sir qilmaydi","Avval oshiradi, keyin kamaytiradi"], c:0},
+  {q:"Reaksiya tezligiga konsentratsiya ta'siri:", a:["Kuchaytiradi","Kamaytiradi","Ta'sir qilmaydi","Faqat bosim o'zgarishida ta'sir qiladi"], c:0},
+  {q:"Kimyoviy reaksiya tezligi o'lchov birligi:", a:["Mol/l·sekund","Mol/l","Mol/sekund","Gramm/sekund"], c:0},
+  {q:"Kuchli elektrolitlar dissotsiatsiyalanish konstantasi:", a:["30% ko'p","3% kam","10% kam","50% ko'p"], c:0},
+  {q:"Kuchsiz elektrolitlar dissotsiatsiyalanish konstantasi:", a:["3% kam","30% ko'p","50% ko'p","10% ko'p"], c:0},
+  {q:"Elektrolitlar dissotsiatsiyalanish xususiyati kattaligi:", a:["Dissotsiasiyalanish darajasi","Dissotsiasiyalanish konstantasi","Ekvivalent og'irligi","Molekulyar massa"], c:0},
+  {q:"Quyidagilardan kimyoviy hodisani aniqlang:", a:["Sutning achishi","Suvning muzlashi","Shishaning sinishi","Temirning qizishi"], c:0},
+  {q:"Atomning tarkibini ifoda qiladigan to'laroq ta'rifini ko'rsating:", a:["Musbat zaryadli yadro va uning atrofida aylanuvchi elektronlardan iborat elektroneytral zarracha","Faqat proton va neytronlardan iborat zarracha","Manfiy zaryadli zarracha","Faqat elektronlardan iborat zarracha"], c:0},
+  {q:"Molekula – bu …", a:["Moddaning barcha kimyoviy xossalarini o'zida saqlovchi eng kichik zarracha","Eng kichik zaryadli zarracha","Atom guruhidan iborat ion","Elektronlar to'plami"], c:0},
+  {q:"Molekula to'g'risidagi noto'g'ri fikrni aniqlang:", a:["Molekulalar kimyoviy hodisalarda deyarli o'zgarishga uchramaydi","Molekulalar kimyoviy hodisalarda parchalanadi","Molekulalar jismoniy hodisalarda o'zgarmaydi","Molekulalar atomlardan tuzilgan"], c:0},
+  {q:"Faqat kimyoviy elementlar berilgan qatorni aniqlang:", a:["Uglerod, kislorod, vodorod, azot","Suv, havo, tuproq, olov","NaCl, HCl, NaOH, H₂O","Temir, mis, oltin, kumush"], c:0},
+  {q:"Metallmaslar berilgan qatorni ko'rsating:", a:["Uglerod, oltingugurt, brom, selen","Temir, mis, sink, qo'rg'oshin","Natriy, kaliy, kaltsiy, magniy","Simob, alyuminiy, titan, nikel"], c:0},
+  {q:"Qaysi qatorda aktiv metallar berilgan?", a:["K, Li, Fr, Cs, Ra","Fe, Ni, Co, Cu, Zn","Pb, Sn, Bi, Sb, As","Au, Ag, Pt, Pd, Ir"], c:0},
+  {q:"Passiv metallni aniqlang:", a:["Simob","Natriy","Kaliy","Litiy"], c:0},
+  {q:"Oddiy moddalar berilgan qatorni aniqlang:", a:["Fullerin, temir, argon, lantan, qaldiroq gaz","Suv, ammiak, karbonat angidrid","Tuz, shakar, limon kislota","Mis sulfat, temir xlorid"], c:0},
+  {q:"Quyidagilardan qaysi birida allotropiya hodisasi kuzatilmaydi?", a:["Vodorod","Kislorod","Uglerod","Oltingugurt"], c:0},
+  {q:"Quyidagilardan qaysi biri oddiy moddaga tegishli emas?", a:["Yadro zaryadi","Aluminiy","Temir","Kislorod"], c:0},
+  {q:"Quyidagilardan qaysi birida oddiy modda haqida so'z boradi:", a:["Baliqlar suvda erigan kislorod bilan nafas oladi","Suvning elektrolizida vodorod va kislorod hosil bo'ladi","NaCl osh tuzidir","Mis elektr o'tkazuvchan metalldir"], c:0},
+  {q:"Quyidagi xodisalarning qaysi guruhi kimyoviy jarayonga taalluqli?", a:["Temirning xlorlanishi, kalsiy karbonatning parchalanishi","Suvning qaynashi, muzning erishi","Shishaning sinishi, qog'ozning yirtilishi","Benzolning bug'lanishi, yodning sublimatsiyasi"], c:0},
+  {q:"Kimyoviy hodisalarga kirmaydigan jarayonni ko'rsating:", a:["Yog'ning sovuqda qotishi","Temirning zanglashi","Yoqilg'ining yonishi","Sutning achishi"], c:0},
+  {q:"Oshqozon shirasini kislotaligi oshganda alyuminiy birikmalaridan qaysi biri ishlatiladi:", a:["Alyuminiy gidroksid","Alyuminiy sulfat","Alyuminiy xlorid","Alyuminiy nitrat"], c:0},
+  {q:"Suvni tozalash uchun alyuminiy birikmalaridan qaysi biri ishlatiladi:", a:["Alyuminiy sulfat","Alyuminiy gidroksid","Alyuminiy xlorid","Alyuminiy atsetat"], c:0},
+  {q:"Teri va shilliq qavat yallig'lanishida, qon to'xtatish uchun alyuminiy birikmalaridan qaysi biri ishlatiladi:", a:["Kaliy alyuminiyli achiqtosh","Alyuminiy sulfat","Alyuminiy gidroksid","Alyuminiy atsetat"], c:0},
+  {q:"Alyuminiyning qaysi birikmasi lat yeganda kompres qo'yish uchun ishlatiladi:", a:["Alyuminiy atsetat asosli tuzi","Alyuminiy gidroksid","Alyuminiy sulfat","Kaliy alyuminiyli achiqtosh"], c:0},
+  {q:"Alyuminiyning qaysi birikmasi adsorbsiyalovchi modda sifatida kuyganda, ekzema va yarvalarda ishlatiladi:", a:["Oq loy yoki kaolin","Alyuminiy gidroksid","Alyuminiy sulfat","Alyuminiy atsetat"], c:0},
+  {q:"Qaysi p-element radioximiya va rentgenotexnikada himoya qurilmalari uchun ishlatiladi?", a:["Qo'rg'oshin","Temir","Mis","Sink"], c:0},
+  {q:"Quyidagi kasalliklarda faollashgan ko'mir ishlatiladi:", a:["Oshqozon ichak kasalliklarida, meteorizmda","Yurak kasalliklarida","O'pka kasalliklarida","Buyrak kasalliklarida"], c:0},
+  {q:"Qo'rg'oshinning birikmasi plastir ko'rinishida terining yiringli yaralari, chipqon chiqqanda qo'llaniladi:", a:["Qo'rg'oshin yaltirogi","Qo'rg'oshin xlorid","Qo'rg'oshin sulfat","Qo'rg'oshin oksid"], c:0},
+  {q:"Jarrohlik amaliyotida narkoz uchun ishlatiladigan birikmani ko'rsating:", a:["N₂O","NO","NO₂","N₂O₄"], c:0},
+  {q:"ATF, ADF, AMF, DNK va RNK tarkibiga kiruvchi p-element:", a:["P (fosfor)","S (oltingugurt)","N (azot)","C (uglerod)"], c:0},
+  {q:"Aminokislota tarkibiga kiruvchi p-elementlar:", a:["N, O, C","N, S, P","O, S, Cl","C, H, S"], c:0},
+  {q:"Tarkibiga kobalt kiruvchi vitamin:", a:["Vitamin B₁₂","Vitamin D","Vitamin C","Vitamin A"], c:0},
+  {q:"Gem tarkibidagi temir kislorod bilan hosil qiluvchi birikma:", a:["Oksigemoglobin","Deoksigemoglobin","Karboksigemoglobin","Methemoglobin"], c:0},
+  {q:"Ozuqa tarkibida temir etishmasligida kelib chiqadigan kasallik:", a:["Anemiya","Diabet","Gipertenziya","Osteoporoz"], c:0},
+  {q:"Nikel saqlovchi ferment:", a:["Arginaza","Katalaza","Lipaza","Amilaza"], c:0},
+  {q:"Albinoslar organizmida nikel miqdori:", a:["Ko'tarilgan","Tushgan","O'zgarmagan","Mavjud emas"], c:0},
+  {q:"Vitamin B₁₂ etishmasa kelib chiqadigan kasallik?", a:["Havfli anemiya","Raxit","Skorbutit","Pellagra"], c:0},
+  {q:"Odam organizmida temir turlari:", a:["Fe²⁺, Fe³⁺","Fe, Fe²⁺","Fe³⁺, Fe⁴⁺","Faqat Fe²⁺"], c:0},
+  {q:"Mis etishmasligida kuzatiladigan kasallik:", a:["Anemiya","Diabet","Gipertenziya","Osteoporoz"], c:0},
+  {q:"Ag⁺ ionlariga sifat reaktivi:", a:["K₂CrO₄","KI","NaCl","H₂SO₄"], c:0},
+  {q:"Tarkibiga xrom kiruvchi ferment:", a:["Tripsin","Amilaza","Lipaza","Katalaza"], c:0},
+  {q:"Metabolizmga ta'sir etuvchi d-element, masalan siydik hosil bo'lishiga:", a:["Marganes","Temir","Mis","Kobalt"], c:0},
+  {q:"Metallofermentlar tarkibiga kiruvchi elementlar:", a:["d-elementlar","p-elementlar","s-elementlar","f-elementlar"], c:0},
+  {q:"To'qimalar nafas olish fermenti tarkibiga kiruvchi element:", a:["Mis","Temir","Rux","Kobalt"], c:0},
+  {q:"Fermentlar faolligi pasayganda kelib chiqadigan kasallik:", a:["Fermentopatiya","Anemiya","Diabet","Gipertenziya"], c:0},
+];
+
+let questions = [];
+let current = 0;
+let answers = {};
+let correctCount = 0;
+let wrongCount = 0;
+let quizStarted = false;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function shuffleOptions(q) {
+  const opts = q.a.map((text, i) => ({ text, correct: i === q.c }));
+  shuffle(opts);
+  return { q: q.q, a: opts.map(o => o.text), c: opts.findIndex(o => o.correct) };
+}
+
+function startQuiz() {
+  questions = allQuestions.map(q => shuffleOptions(q));
+  init();
+}
+
+function shuffleAndStart() {
+  questions = shuffle(allQuestions.map(q => shuffleOptions(q)));
+  document.getElementById('snote').textContent = '🔀 Savollar aralashtirildi!';
+  setTimeout(() => document.getElementById('snote').textContent = '', 2000);
+  init();
+}
+
+function restartQuiz() {
+  questions = allQuestions.map(q => shuffleOptions(q));
+  init();
+}
+
+function init() {
+  current = 0; answers = {}; correctCount = 0; wrongCount = 0;
+  quizStarted = true;
+  document.getElementById('rscreen').style.display = 'none';
+  document.getElementById('qarea').style.display = 'block';
+  updateStats();
+  renderQuestion();
+}
+
+function updateStats() {
+  document.getElementById('s-current').textContent = Object.keys(answers).length;
+  document.getElementById('s-correct').textContent = correctCount;
+  document.getElementById('s-wrong').textContent = wrongCount;
+  const pct = Math.round((Object.keys(answers).length / questions.length) * 100);
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = Object.keys(answers).length + ' / ' + questions.length + ' savol bajarildi';
+}
+
+function renderQuestion() {
+  if (!questions.length) return;
+  const q = questions[current];
+  document.getElementById('qnum').textContent = 'Savol ' + (current + 1) + ' / ' + questions.length;
+  document.getElementById('qtext').textContent = q.q;
+
+  const letters = ['A', 'B', 'C', 'D'];
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+
+  const answered = answers[current] !== undefined;
+
+  q.a.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    if (answered) {
+      if (i === q.c) div.classList.add('correct');
+      else if (i === answers[current] && i !== q.c) div.classList.add('wrong');
+    } else {
+      div.onclick = () => selectAnswer(i);
+    }
+    div.innerHTML = '<div class="option-letter">' + letters[i] + '</div><div class="option-text">' + opt + '</div>';
+    optsDiv.appendChild(div);
+  });
+
+  const fb = document.getElementById('feedback');
+  if (answered) {
+    fb.style.display = 'block';
+    if (answers[current] === q.c) {
+      fb.className = 'feedback correct';
+      fb.textContent = '✅ To\'g\'ri! ' + q.a[q.c];
+    } else {
+      fb.className = 'feedback wrong';
+      fb.textContent = '❌ Xato! To\'g\'ri javob: ' + q.a[q.c];
+    }
+  } else {
+    fb.style.display = 'none';
+  }
+
+  document.getElementById('prevBtn').style.display = current > 0 ? 'inline-block' : 'none';
+  const isLast = current === questions.length - 1;
+  document.getElementById('nextBtn').style.display = (answered && !isLast) ? 'inline-block' : 'none';
+  document.getElementById('finishBtn').style.display = (answered && isLast) ? 'inline-block' : 'none';
+}
+
+function selectAnswer(i) {
+  if (answers[current] !== undefined) return;
+  answers[current] = i;
+  const q = questions[current];
+  if (i === q.c) correctCount++; else wrongCount++;
+  updateStats();
+  renderQuestion();
+}
+
+function nextQ() { if (current < questions.length - 1) { current++; renderQuestion(); } }
+function prevQ() { if (current > 0) { current--; renderQuestion(); } }
+
+function showResults() {
+  document.getElementById('qarea').style.display = 'none';
+  const rscreen = document.getElementById('rscreen');
+  rscreen.style.display = 'block';
+  const total = questions.length;
+  const skipped = total - Object.keys(answers).length;
+  const pct = Math.round((correctCount / total) * 100);
+  document.getElementById('rscore').textContent = pct + '%';
+  document.getElementById('rcorrect').textContent = correctCount;
+  document.getElementById('rwrong').textContent = wrongCount;
+  document.getElementById('rskipped').textContent = skipped;
+  let label = pct >= 85 ? '🏆 Ajoyib natija!' : pct >= 70 ? '👍 Yaxshi! Davom eting.' : pct >= 50 ? '📚 O\'rtacha. Ko\'proq mashq kerak.' : '💪 Qayta o\'qing va urinib ko\'ring!';
+  document.getElementById('rlabel').textContent = label;
+}
+</script>
+</body>
+</html>
